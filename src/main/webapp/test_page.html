@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- JQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<title>Тестовая страница</title>
+</head>
+<body>
+
+<div class="container">
+    <div class="page-header">
+        <h1>Тестовая страница</h1>
+    </div>
+
+    <form action="rest/check" method="POST" id="formID">
+        <div class="form-group">
+            <label for="surname">Фамилия:</label>
+            <input type="text" class="form-control" id="surname" name="surname" required/>
+        </div>
+        <div class="form-group">
+            <label for="name">Имя:</label>
+            <input type="text" class="form-control" id="name" name="name" required/>
+        </div>
+        <div class="form-group">
+            <label for="midname">Отчество:</label>
+            <input type="text" class="form-control" id="midname" name="midname"/>
+        </div>
+        <div class="form-group">
+            <label for="birthday">Дата рождения:</label>
+            <input type="text" class="form-control" id="birthday" name="birthday" placeholder="в формате dd.MM.yyyy" required/>
+        </div>
+        <input type="submit" class="pull-right btn btn-default"/>
+    </form>
+</div>
+
+<script>
+    $('#formID').on('submit', function (e) {
+        e.preventDefault();
+        var form = this;
+        var data = {
+            surname: $('#surname').val(),
+            name: $('#name').val(),
+            midname: $('#midname').val(),
+            birthday: $('#birthday').val()
+        };
+        $.ajax({
+            url: form.action,
+            type: form.method,
+            data: data,
+            success: function (res) {
+                var data = JSON.parse(res);
+                var content = '{\n\texist: ' + data.exist + '\n';
+                if (data.exist === true) {
+                    content += '\tresult: {\n\t\t';
+                    content += 'databeg: ' + data.result.databeg + '\n\t\t';
+                    content += 'dataend: ' + data.result.dataend + '\n\t\t';
+                    content += 'isActive: ' +  data.result.isActive + '\n\t';
+                    content += '}\n';
+                }
+                content += '}';
+                alert(content);
+                form.reset();
+            }
+        });
+    });
+</script>
+</body>
+</html>

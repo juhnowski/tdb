@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>База данных террористов</title>
+    <!-- Datepicker style -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.14.30/css/bootstrap-datetimepicker.min.css"
+          rel="stylesheet">
+    <!-- Notify CSS -->
+    <link href="css/bootstrap-notify.css" rel="stylesheet">
+    <!-- JQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Moment -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment-with-locales.min.js"></script>
+    <!-- Notify -->
+    <script src="js/bootstrap-notify.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <!-- Datepicker JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.14.30/js/bootstrap-datetimepicker.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <table id="table-data" class="table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Дата</th>
+            <th>Тип</th>
+            <th>Сообщение</th>
+            <th>Статус</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <a href="index.html" class="btn btn-default pull-right">Назад</a>
+</div>
+
+
+<script>
+    function getData() {
+        $.get('rest/updates', function (data) {
+            $(function () {
+                var content = '';
+                for (var i = 0; i < data.length; i++) {
+                    content += '<tr>';
+                    content += '<td>' + data[i].id + '</td>';
+                    content += '<td>' + data[i].date + '</td>';
+                    content += '<td>' + data[i].type + '</td>';
+                    content += '<td>' + data[i].message + '</td>';
+                    content += '<td>' + data[i].status + '</td>';
+                    content += '</tr>';
+                }
+                $('#table-data tbody').html(content);
+            });
+        });
+    }
+
+    getData();
+</script>
+</body>
+</html>

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>База данных террористов</title>
+    <!-- Datepicker style -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.14.30/css/bootstrap-datetimepicker.min.css"
+          rel="stylesheet">
+    <!-- Notify CSS -->
+    <link href="css/bootstrap-notify.css" rel="stylesheet">
+    <!-- JQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Moment -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment-with-locales.min.js"></script>
+    <!-- Notify -->
+    <script src="js/bootstrap-notify.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <!-- Datepicker JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.14.30/js/bootstrap-datetimepicker.min.js"></script>
+
+    <style>
+        .form-group .checkbox {
+            margin-left: 20px;
+        }
+
+        .btn-file {
+            position: relative;
+            overflow: hidden;
+            margin-right: 4px;
+        }
+
+        .btn-file input {
+            position: absolute;
+            top: 3px;
+            opacity: 0;
+            filter: alpha(opacity=0);
+            font-size: 23px;
+            direction: ltr;
+            cursor: pointer;
+        }
+
+        /* Fix for IE 7: */
+        * + html .btn-file {
+            padding: 2px 15px;
+            margin: 1px 0 0 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class='notifications top-right'></div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Ручное обновление базы данных</h3>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-sm-6">
+                    <form method="POST" id="man_update_form" action="rest/man_update" class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">URL для обновления</label>
+
+                            <div class="col-sm-8">
+                                <input id="url" type="text" class="form-control"
+                                       placeholder="URL для обновления" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Тип обновления</label>
+
+                            <div class="col-sm-8">
+                                <select class="form-control" id="type">
+                                    <option value="ACT">Актуальные</option>
+                                    <option value="ADD">Добавленые</option>
+                                    <option value="DEL">Удаленые</option>
+                                </select>
+                            </div>
+                        </div>
+                        <input type="submit" class="btn btn-default pull-right" value="Обновить по URL"/>
+                    </form>
+                </div>
+                <div class="col-sm-6">
+                    <form id="update-from-file-form" action="rest/csv_upload" method="post" enctype="multipart/form-data" class="form-horizontal">
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Файл</label>
+
+                            <div class="col-sm-8">
+                                <span class="btn btn-success btn-file">
+                                    <i class="icon-plus"></i> <span>Выберите файл...</span>
+                                    <input id="file" type="file" name="file" required/>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Тип обновления</label>
+
+                            <div class="col-sm-8">
+                                <select class="form-control" id="type" name="type">
+                                    <option value="ACT">Актуальные</option>
+                                    <option value="ADD">Добавленые</option>
+                                    <option value="DEL">Удаленые</option>
+                                </select>
+                            </div>
+                        </div>
+                        <input type="submit" class="btn btn-default pull-right" value="Обновить с файла"/>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                Автоматическое обновление базы данных
+                <span class="actions pull-right"><a href="history_updates.html">История обновлений</a></span>
+            </h3>
+        </div>
+        <div class="panel-body">
+            <form method="POST" id="auto_schedule_form" class="form-horizontal" action="rest/schedule">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Дни недели</label>
+
+                    <div class="col-sm-10">
+                        <label class="checkbox inline">
+                            <input type="checkbox" value="mon" name="days"> Понедельник
+                        </label>
+                        <label class="checkbox inline">
+                            <input type="checkbox" value="tue" name="days"> Вторник
+                        </label>
+                        <label class="checkbox inline">
+                            <input type="checkbox" value="wed" name="days"> Среда
+                        </label>
+                        <label class="checkbox inline">
+                            <input type="checkbox" value="thu" name="days"> Четверг
+                        </label>
+                        <label class="checkbox inline">
+                            <input type="checkbox" value="fri" name="days"> Пятница
+                        </label>
+                        <label class="checkbox inline">
+                            <input type="checkbox" value="sat" name="days"> Суббота
+                        </label>
+                        <label class="checkbox inline">
+                            <input type="checkbox" value="sun" name="days"> Воскресенье
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Часы (00-23)</label>
+
+                    <div class="col-sm-2">
+                        <input id="hour" type="text" size="3" class="col-sm-10 form-control" placeholder="00-23"
+                               required>
+                    </div>
+                </div>
+                <input type="button" id="update-button" class="btn btn-default pull-right" value="Обновить сейчас"/>
+                <input type="submit" class="btn btn-default pull-right" value="Сохранить"/>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#update-from-file-form').on('submit', function (e) {
+        e.preventDefault();
+        var form = this;
+        var formData = new FormData($('#update-from-file-form')[0]);
+        $.ajax({
+            url: form.action,
+            type: form.method,
+            success: function (data) {
+                if (data.success) {
+                    $('.top-right').notify({
+                        message: {
+                            text: 'База данных обновлена.'
+                        }
+                    }).show();
+                    form.reset();
+                } else {
+                    $('.top-right').notify({
+                        message: {
+                            text: 'Ошибка обновления базы данных!.'
+                        },
+                        type: 'danger'
+                    }).show();
+                }
+            },
+            statusCode: {
+                500: function (xhr) {
+                    $('.top-right').notify({
+                        message: {
+                            text: 'Ошибка при обновлении!'
+                        },
+                        type: 'danger'
+                    }).show();
+                }
+            },
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false
+        });
+    });
+
+    $('#update-button').on('click', function () {
+        $.ajax({
+            url: 'rest/update',
+            type: 'GET',
+            success: function (data) {
+                if (data.success) {
+                    $('.top-right').notify({
+                        message: {
+                            text: 'База данных обновлена.'
+                        }
+                    }).show();
+                } else {
+                    $('.top-right').notify({
+                        message: {
+                            text: 'Ошибка при обновлении!'
+                        },
+                        type: 'danger'
+                    }).show();
+                }
+            },
+        });
+    });
+
+    $('#man_update_form').on('submit', function (e) {
+        e.preventDefault();
+        var form = this;
+        var data = {
+            url: $('#url').val(),
+            type: $('#type').val()
+        };
+        $.ajax({
+            url: form.action,
+            type: form.method,
+            data: data,
+            success: function (data) {
+                $('.top-right').notify({
+                    message: {
+                        text: 'База данных обновлена.'
+                    }
+                }).show();
+                form.reset();
+            },
+            statusCode: {
+                500: function (xhr) {
+                    $('.top-right').notify({
+                        message: {
+                            text: 'Ошибка при обновлении!'
+                        },
+                        type: 'danger'
+                    }).show();
+                }
+            }
+        });
+    });
+
+    $('#auto_schedule_form').on('submit', function (e) {
+        e.preventDefault();
+
+        var selectedChecks = $("input[name=days]:checked").map(
+                function () {
+                    return this.value;
+                }
+        ).get().join(",");
+        var form = this;
+        var data = {
+            hour: $('#hour').val(),
+            days: selectedChecks
+        };
+        $.ajax({
+            url: form.action,
+            type: form.method,
+            data: data,
+            success: function (data) {
+                $('.top-right').notify({
+                    message: {
+                        text: 'Успешно сохранено.'
+                    }
+                }).show();
+            },
+            statusCode: {
+                500: function (xhr) {
+                    $('.top-right').notify({
+                        message: {
+                            text: 'Ошибка при сохранении!'
+                        },
+                        type: 'danger'
+                    }).show();
+                }
+            }
+        });
+    });
+
+    function getData() {
+        $.ajax({
+            url: 'rest/settings',
+            type: 'get',
+            success: function (data) {
+                if (data != null) {
+                    var selDays = data.days.split(",");
+                    for (var i = 0; i < selDays.length; i++) {
+                        $('input[value=' + selDays[i] + ']').attr('checked', true);
+                    }
+                    $('#hour').val(data.hour);
+                }
+            }
+        });
+    }
+
+    (function ($) {
+        $(function () {
+            $('.btn-file').each(function () {
+                var self = this;
+                $('input[type=file]', this).change(function () {
+                    $(self).next().remove();
+                    var value = $(this).val();
+                    var fileName = value.substring(value.lastIndexOf('/') + 1);
+                    var fileExt = fileName.split('.').pop().toLowerCase();
+                    $('<span><i class="icon-file icon-' + fileExt + '"></i> ' + fileName + '</span>').insertAfter(self);
+                });
+            });
+        });
+    })(jQuery);
+    getData();
+</script>
+
+</body>
+</html>
